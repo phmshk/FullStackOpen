@@ -4,7 +4,6 @@ import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import phonebookServie from "./services/contacts";
 import Button from "./components/Button";
-import genUid from "light-uid";
 import Notification from "./components/Notification";
 
 const App = () => {
@@ -103,7 +102,6 @@ const App = () => {
       const newPerson = {
         name: newName,
         number: newNumber,
-        id: genUid(8),
       };
       const newPersons = persons.concat(newPerson);
       setPersons(newPersons);
