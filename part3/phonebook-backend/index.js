@@ -3,13 +3,14 @@ const morgan = require("morgan");
 const app = express();
 
 morgan.token("post-request", function (req, res) {
-  if (req.method === "POST" && req.body) {
+  if ((req.method === "POST" || req.method === "PUT") && req.body) {
     return JSON.stringify(req.body);
   }
   return " ";
 });
 
 app.use(express.json());
+app.use(express.static("dist"));
 app.use(
   morgan(
     ":method :url :status :res[content-length] - :response-time ms :post-request"
