@@ -86,16 +86,20 @@ const App = () => {
             const notificationText = "Old number was successfuly replaced.";
             showNotification(notificationText, "success");
           })
-          .catch(() => {
-            const notificationText = `Information of ${newName} has already been removed from server.`;
-            showNotification(notificationText, "error");
-            setPersons(
-              persons.filter(
-                (person) =>
-                  person.name.toLocaleLowerCase() !==
-                  newName.toLocaleLowerCase()
-              )
-            );
+          .catch((error) => {
+            if (error.status === 400) {
+              showNotification(error.response.data.error, "error");
+            } else if (error.status === 404) {
+              const notificationText = `Information of ${newName} has already been removed from server.`;
+              showNotification(notificationText, "error");
+              setPersons(
+                persons.filter(
+                  (person) =>
+                    person.name.toLocaleLowerCase() !==
+                    newName.toLocaleLowerCase()
+                )
+              );
+            }
           });
       }
     } else {
@@ -104,10 +108,16 @@ const App = () => {
         number: newNumber,
       };
       const newPersons = persons.concat(newPerson);
-      setPersons(newPersons);
-      phonebookServie.create(newPerson);
-      const notificationText = `Added ${newPerson.name}`;
-      showNotification(notificationText, "success");
+      phonebookServie
+        .create(newPerson)
+        .then(() => {
+          setPersons(newPersons);
+          const notificationText = `Added ${newPerson.name}`;
+          showNotification(notificationText, "success");
+        })
+        .catch((error) => {
+          showNotification(error.response.data.error, "error");
+        });
     }
     setNewName("");
     setNewNumber("");
