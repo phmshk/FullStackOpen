@@ -2,11 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const Person = require("./models/Person");
-const mongoose = require("mongoose");
 
 const app = express();
 
-morgan.token("post-request", function (req, res) {
+morgan.token("post-request", function (req) {
   if ((req.method === "POST" || req.method === "PUT") && req.body) {
     return JSON.stringify(req.body);
   }
@@ -75,7 +74,7 @@ app.get("/api/persons/:id", (request, response, next) => {
 app.delete("/api/persons/:id", (request, response, next) => {
   const id = request.params.id;
   Person.findByIdAndDelete(id)
-    .then((deletedPerson) => {
+    .then(() => {
       response.status(204).end();
     })
     .catch((error) => next(error));

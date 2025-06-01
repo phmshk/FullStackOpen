@@ -47,7 +47,7 @@ if (process.argv.length === 3) {
     number: number,
   });
 
-  newPerson.save().then((result) => {
+  newPerson.save().then(() => {
     console.log(
       `added ${newPerson.name} number ${newPerson.number} to phonebook`
     );
