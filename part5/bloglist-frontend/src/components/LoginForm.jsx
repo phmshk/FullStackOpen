@@ -1,14 +1,18 @@
 import { useState } from "react";
 
-const LoginForm = ({
-  username,
-  setUsername,
-  password,
-  setPassword,
-  handleLogin,
-}) => {
+const LoginForm = ({ loginUser }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    loginUser({ username, password });
+    setUsername("");
+    setPassword("");
+  };
+
   return (
-    <form onSubmit={handleLogin}>
+    <form onSubmit={handleSubmit}>
       {" "}
       <div>
         {" "}

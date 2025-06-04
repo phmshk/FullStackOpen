@@ -1,5 +1,3 @@
-import React from "react";
-
 const Notification = ({ notification }) => {
   let classes = {
     background: "lightgrey",

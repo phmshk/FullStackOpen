@@ -1,20 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import LoginForm from "./components/LoginForm";
 import loginService from "./services/login";
 import BlogFrom from "./components/BlogFrom";
 import Notification from "./components/Notification";
+import Togglable from "./components/Togglable";
 
 const App = () => {
   const [blogs, setBlogs] = useState([]);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+  const blogFormRef = useRef();
 
   const [notification, setNotification] = useState({ text: "", type: null });
   const showNotification = (text, type) => {
@@ -24,56 +20,52 @@ const App = () => {
     }, 5000);
   };
 
-  const handleNewBlog = async (e) => {
-    e.preventDefault();
+  const deleteBlog = async (id) => {
     try {
       blogService.setToken(user.token);
-      const newBlog = await blogService.create({ title, author, url });
+      await blogService.deleteBlog(id);
+      setBlogs(blogs.filter((blog) => blog.id !== id));
+    } catch (error) {
+      showNotification(`Something went wrong: ${error.message}`, "error");
+    }
+  };
+
+  const likeBlog = async (id, newBlog) => {
+    try {
+      const updatedBlog = await blogService.update(id, newBlog);
+      setBlogs(
+        blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog))
+      );
+    } catch (error) {
+      showNotification(`Something went wrong: ${error.message}`, "error");
+    }
+  };
+
+  const createNewBlog = async (blogObj) => {
+    try {
+      blogService.setToken(user.token);
+      const newBlog = await blogService.create(blogObj);
       setBlogs([...blogs, newBlog]);
       showNotification(`a new blog ${newBlog.title} added`, "success");
-
-      setTitle("");
-      setAuthor("");
-      setUrl("");
+      blogFormRef.current.toggleVisibility();
     } catch {
       showNotification("Wrong blog format", "error");
     }
   };
 
-  const handleLogout = () => {
+  const logoutUser = () => {
     window.localStorage.removeItem("user");
     setUser(null);
   };
 
-  const handleLogin = async (event) => {
-    event.preventDefault();
+  const loginUser = async (userObj) => {
     try {
-      const user = await loginService.login({ username, password });
+      const user = await loginService.login(userObj);
       setUser(user);
       window.localStorage.setItem("user", JSON.stringify(user));
-      setUsername("");
-      setPassword("");
     } catch (error) {
       showNotification("Wrong credentials", "error");
     }
-  };
-
-  const loginProps = {
-    username,
-    password,
-    setUsername,
-    setPassword,
-    handleLogin,
-  };
-
-  const blogProps = {
-    title,
-    author,
-    url,
-    setTitle,
-    setAuthor,
-    setUrl,
-    handleNewBlog,
   };
 
   useEffect(() => {
@@ -92,7 +84,7 @@ const App = () => {
       <>
         <Notification notification={notification} />
 
-        <LoginForm {...loginProps} />
+        <LoginForm loginUser={loginUser} />
       </>
     );
   }
@@ -104,16 +96,25 @@ const App = () => {
       <h2>blogs</h2>
       <div>
         <span>{user.name} logged in </span>
-        <button onClick={handleLogout}>Log out</button>
+        <button onClick={logoutUser}>Log out</button>
       </div>
 
       <div>
         <h2>create new</h2>
-        <BlogFrom {...blogProps} />
+        <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
+          <BlogFrom createBlog={createNewBlog} />
+        </Togglable>
       </div>
-      {blogs.map((blog) => (
-        <Blog key={blog.id} blog={blog} />
-      ))}
+      {blogs
+        .sort((a, b) => a.likes < b.likes)
+        .map((blog) => (
+          <Blog
+            key={blog.id}
+            blog={blog}
+            likeBlog={likeBlog}
+            deleteBlog={deleteBlog}
+          />
+        ))}
     </div>
   );
 };
