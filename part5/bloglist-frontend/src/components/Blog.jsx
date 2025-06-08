@@ -26,8 +26,10 @@ const Blog = ({ blog, likeBlog, deleteBlog }) => {
   };
 
   useEffect(() => {
-    const user = JSON.parse(window.localStorage.getItem("user")).name;
-    setCurrentUser(user);
+    const user = window.localStorage.getItem("user");
+    if (user) {
+      setCurrentUser(JSON.parse(user).name);
+    }
   }, []);
 
   return (
@@ -37,18 +39,25 @@ const Blog = ({ blog, likeBlog, deleteBlog }) => {
         backgroundColor: currentUser === blog.user.name ? "#ede9e8" : "",
         borderColor: visible ? "blue" : "",
       }}
+      className="blog"
+      data-testid="blog-post-item"
     >
       <div>
-        "{blog.title}" by {blog.author}{" "}
+        &quot;{blog.title}&quot; by {blog.author}{" "}
         <button onClick={() => setVisible(!visible)}>
           {visible ? "hide" : "show"}
         </button>
       </div>
       <div style={showWhenVisible}>
-        <div>{blog.url}</div>
-        <div>
-          likes: {blog.likes}{" "}
-          <button onClick={() => handleClickLike(blog)}>like</button>
+        <div className="url">{blog.url}</div>
+        <div className="likes">
+          likes: <span data-testid="like-count">{blog.likes}</span>{" "}
+          <button
+            onClick={() => handleClickLike(blog)}
+            data-testid="like-button"
+          >
+            like
+          </button>
         </div>
         <div>{blog.user.name}</div>
         {currentUser === blog.user.name && (

@@ -73,7 +73,7 @@ const App = () => {
   }, []);
 
   useEffect(() => {
-    const loggedUser = localStorage.getItem("user");
+    const loggedUser = window.localStorage.getItem("user");
     if (loggedUser) {
       setUser(JSON.parse(loggedUser));
     }
@@ -83,6 +83,7 @@ const App = () => {
     return (
       <>
         <Notification notification={notification} />
+        <h1>Blog App</h1>
 
         <LoginForm loginUser={loginUser} />
       </>
@@ -91,6 +92,8 @@ const App = () => {
 
   return (
     <div>
+      <h1>Blog App</h1>
+
       <Notification notification={notification} />
 
       <h2>blogs</h2>
@@ -106,7 +109,7 @@ const App = () => {
         </Togglable>
       </div>
       {blogs
-        .sort((a, b) => a.likes < b.likes)
+        .sort((a, b) => b.likes - a.likes)
         .map((blog) => (
           <Blog
             key={blog.id}

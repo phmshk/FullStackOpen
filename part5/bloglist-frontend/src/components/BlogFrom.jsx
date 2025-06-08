@@ -25,6 +25,8 @@ const BlogFrom = ({ createBlog }) => {
             name="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            id="title-input"
+            data-testid="title-input"
           />
         </label>
       </div>
@@ -37,6 +39,8 @@ const BlogFrom = ({ createBlog }) => {
             name="author"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
+            id="author-input"
+            data-testid="author-input"
           />
         </label>
       </div>
@@ -49,6 +53,8 @@ const BlogFrom = ({ createBlog }) => {
             name="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
+            id="url-input"
+            data-testid="url-input"
           />
         </label>
       </div>
