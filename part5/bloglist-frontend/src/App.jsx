@@ -1,124 +1,80 @@
-import { useState, useEffect, useRef } from "react";
-import Blog from "./components/Blog";
-import blogService from "./services/blogs";
+import { useEffect } from "react";
 import LoginForm from "./components/LoginForm";
-import loginService from "./services/login";
-import BlogFrom from "./components/BlogFrom";
 import Notification from "./components/Notification";
-import Togglable from "./components/Togglable";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "./features/userSlice";
+import { loginUser, userAdded, userRemoved } from "./features/userSlice";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+import CreateNew from "./components/CreateNew";
+import { useShowNotification } from "./features/showNotification";
+import BlogsList from "./components/BlogsList";
+import Users from "./components/Users";
+import SingleUserPage from "./components/SingleUserPage";
+import SingleBlogPage from "./components/SingleBlogPAge";
+import { Navbar } from "./components/Navbar";
 
 const App = () => {
-  const [blogs, setBlogs] = useState([]);
-  const [user, setUser] = useState(null);
-  const blogFormRef = useRef();
+  const dispatch = useDispatch();
 
-  const [notification, setNotification] = useState({ text: "", type: null });
-  const showNotification = (text, type) => {
-    setNotification({ text, type });
-    setTimeout(() => {
-      setNotification({ text: "", type: null });
-    }, 5000);
-  };
-
-  const deleteBlog = async (id) => {
-    try {
-      blogService.setToken(user.token);
-      await blogService.deleteBlog(id);
-      setBlogs(blogs.filter((blog) => blog.id !== id));
-    } catch (error) {
-      showNotification(`Something went wrong: ${error.message}`, "error");
-    }
-  };
-
-  const likeBlog = async (id, newBlog) => {
-    try {
-      const updatedBlog = await blogService.update(id, newBlog);
-      setBlogs(
-        blogs.map((blog) => (blog.id === updatedBlog.id ? updatedBlog : blog))
-      );
-    } catch (error) {
-      showNotification(`Something went wrong: ${error.message}`, "error");
-    }
-  };
-
-  const createNewBlog = async (blogObj) => {
-    try {
-      blogService.setToken(user.token);
-      const newBlog = await blogService.create(blogObj);
-      setBlogs([...blogs, newBlog]);
-      showNotification(`a new blog ${newBlog.title} added`, "success");
-      blogFormRef.current.toggleVisibility();
-    } catch {
-      showNotification("Wrong blog format", "error");
-    }
-  };
+  const user = useSelector(getUser);
+  const showNotification = useShowNotification();
 
   const logoutUser = () => {
     window.localStorage.removeItem("user");
-    setUser(null);
+    dispatch(userRemoved());
   };
 
-  const loginUser = async (userObj) => {
+  const handleLogin = async (userObj) => {
     try {
-      const user = await loginService.login(userObj);
-      setUser(user);
-      window.localStorage.setItem("user", JSON.stringify(user));
+      dispatch(loginUser(userObj));
     } catch (error) {
       showNotification("Wrong credentials", "error");
     }
   };
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs));
-  }, []);
-
-  useEffect(() => {
     const loggedUser = window.localStorage.getItem("user");
     if (loggedUser) {
-      setUser(JSON.parse(loggedUser));
+      dispatch(userAdded(JSON.parse(loggedUser)));
     }
   }, []);
 
   if (!user) {
     return (
       <>
-        <Notification notification={notification} />
+        <Notification />
         <h1>Blog App</h1>
 
-        <LoginForm loginUser={loginUser} />
+        <LoginForm loginUser={handleLogin} />
       </>
     );
   }
 
   return (
-    <div>
-      <h1>Blog App</h1>
-
-      <Notification notification={notification} />
-
-      <h2>blogs</h2>
+    <BrowserRouter>
       <div>
-        <span>{user.name} logged in </span>
-        <button onClick={logoutUser}>Log out</button>
-      </div>
+        <h1>Blog App</h1>
+        <Navbar />
+        <Notification />
 
-      <div>
-        <h2>create new</h2>
-        <Togglable buttonLabel={"new blog"} ref={blogFormRef}>
-          <BlogFrom createBlog={createNewBlog} />
-        </Togglable>
-      </div>
-      {blogs
-        .sort((a, b) => b.likes - a.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            likeBlog={likeBlog}
-            deleteBlog={deleteBlog}
+        <h2>blogs</h2>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <>
+                <CreateNew />
+                <BlogsList />
+              </>
+            }
           />
-        ))}
-    </div>
+          <Route path="/users" element={<Users />} />
+          <Route path="/users/:userId" element={<SingleUserPage />} />
+          <Route path="/blogs/:blogId" element={<SingleBlogPage />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 };
 
