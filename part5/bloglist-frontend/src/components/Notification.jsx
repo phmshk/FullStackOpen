@@ -1,4 +1,7 @@
-const Notification = ({ notification }) => {
+import { useSelector } from "react-redux";
+import { selectNotification } from "../features/notificationSlice";
+
+const Notification = () => {
   let classes = {
     background: "lightgrey",
     fontSize: "20px",
@@ -7,6 +10,7 @@ const Notification = ({ notification }) => {
     padding: "10px",
     marginBottom: "10px",
   };
+  const notification = useSelector(selectNotification);
 
   switch (notification.type) {
     case "error":

@@ -5,12 +5,16 @@ const BlogFrom = ({ createBlog }) => {
   const [author, setAuthor] = useState("");
   const [url, setUrl] = useState("");
 
-  const addBlog = (e) => {
+  const addBlog = async (e) => {
     e.preventDefault();
-    createBlog({ title, author, url });
-    setAuthor("");
-    setTitle("");
-    setUrl("");
+    try {
+      await createBlog({ title, author, url });
+      setAuthor("");
+      setTitle("");
+      setUrl("");
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
