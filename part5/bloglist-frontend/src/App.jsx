@@ -3,7 +3,7 @@ import LoginForm from "./components/LoginForm";
 import Notification from "./components/Notification";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./features/userSlice";
-import { loginUser, userAdded, userRemoved } from "./features/userSlice";
+import { loginUser, userAdded } from "./features/userSlice";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import CreateNew from "./components/CreateNew";
@@ -19,11 +19,6 @@ const App = () => {
 
   const user = useSelector(getUser);
   const showNotification = useShowNotification();
-
-  const logoutUser = () => {
-    window.localStorage.removeItem("user");
-    dispatch(userRemoved());
-  };
 
   const handleLogin = async (userObj) => {
     try {
