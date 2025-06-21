@@ -17,8 +17,8 @@ Repository for submitting solutions to the [Full Stack Open](https://fullstackop
 - [x] Part 5: Testing React apps
 - [x] Part 6: Advanced state management
 - [x] Part 7: React router, custom hooks, styling app with CSS and webpack
-- [ ] Part 8: GraphQL (in progress)
-- [ ] Part 9: TypeScript
+- [ ] Part 8: GraphQL (skipped for now)
+- [ ] Part 9: TypeScript (in progress)
 - [ ] Part 10: React Native
 - [ ] Part 11: CI/CD
 - [ ] Part 12: Containers
